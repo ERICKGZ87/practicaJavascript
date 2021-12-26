@@ -1,0 +1,21 @@
+.error{
+border-color:red;
+
+}
+
+.correcto{
+    border-color:green;
+
+}
+
+.pmsjError{
+    color:red;
+}
+.pmsjBien{
+    color:green;
+}
+
+.borrarItems{
+    color:red;
+
+}
