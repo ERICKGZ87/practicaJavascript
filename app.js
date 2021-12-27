@@ -22,7 +22,16 @@ const regxEmail =
   const generateId = () => Math.random().toString(36).substr(2, 18);
   
   //array data donde se almacenara toda la informacion leer,agregar,editar,eliminar
-  data=[];
+  data=[
+  { id:generateId(),
+    email:"erickgz5000@gmail.com",
+    Clave:"123456789sabN$d"
+  },
+  { id:generateId(),
+    email:"pedro87@gmail.com",
+    Clave:"123456987cas34bN$d"
+  },
+];
    
 // funcion escuchar eventos
 Listerners();
@@ -47,8 +56,8 @@ function IniciarApp(){
 
 function ValidarCampos(e) {// reutilizo la funcion validarGeneral y le paso los parametros que pide...
 
-ValidarGeneral(e,"form-control1",regxEmail,"Esta correcto el Email","no es correcto el Email",1); //Email
-ValidarGeneral(e,"form-control2",regexp_password,"la contraseña es correcta","la contraseña es invalida",2)//clave
+ValidarGeneral(e,"form-control1",regxEmail,"Esta correcto el Email","No es correcto el Email debe ser por Ejemplo:fulano@gmail.com",1); //Email
+ValidarGeneral(e,"form-control2",regexp_password,"la contraseña es correcta","la contraseña debe ser ejemplo:147896VacA$",2)//clave
 
 }
 
@@ -151,71 +160,83 @@ function EliminarDatos(e){// eliminar datos
     console.log("🚀 ~ file: app.js ~ line 134 ~ EliminarDatos ~ IdElemento", IdElemento)
   
     data= data.filter(d=>d.id !== IdElemento) // devuelvo todos menos el id del elemento a eliminar
+
     InyectarHtml(data);// se vuelve a inyectar html
+    msjCorrecto("Has Borrado un Email",3)
+    setTimeout(function() {// eliminar el msj
+      LimpiarMsj(BotonAgregar,3)
+    },3000)
+
   }
 
 }
 
 function EditarDatos(e) {// edicion
 
-  const IdElemento = e.target.getAttribute("data-id");// se recibe el id del email a editar
-  console.log(IdElemento)
+  if(e.target.classList.contains("EditarItems") ){
+    const IdElemento = e.target.getAttribute("data-id");// se recibe el id del email a editar
+    console.log(IdElemento)
+  
+    if (e.target.classList.contains("EditarItems") && email.value=="" & Passwor.value=="") {// se evalua q tenga la clase EditarItems y que los campos email y password esten vacios
+      BotonAgregar.disabled = true; // se desactiva el boton agregar
+  
+      data.forEach((d) => {// recorro array data
+        if (d.id === IdElemento) {// si algun id en el array data es igual al IdElemento que recibi
+          // lleno los campos con los datos que quiero editar
+          email.value=d.email
+          Passwor.value=d.Clave
+          //console.log("aqui estoy")
+          msjError("Modifica el correo",1)// aggrego msj debajo de email
+          msjError("Modifica la clave",2)//aggrego msj debajo de passowrd
+          
+        }
+      }); 
+    }
+  // nota la primera vez al hacer click en editar entra en el primer if
+   //luego del que el usuario edita los q tiene en el campo ya no entrara
+   // en el primer if sino que buscara el siguiente
+  
+    const ExisteEmailenData = data.some((data) => data.email === email.value); // en el primer click en editar aqui dara valor true luego de q edita el campo sera false
+    console.log(ExisteEmailenData)
+  
+    if(e.target.classList.contains("EditarItems") && regxEmail.test(email.value) && regexp_password.test(Passwor.value) && ExisteEmailenData===false){// se valua que el email y clave cumple la expresion regular y ExisteEmailenData sea false es decir ese email no esta creado en data
+      
+     const Nuevadata=data.map((d)=>{// mapeo data
+        tablaa.innerHTML="" 
+        if(d.id == IdElemento ){// evaluo si algun id en data es igual al IdElemento que recibi
+        //si alguno es igual lo modifica
+          d.email=email.value
+          d.Clave=Passwor.value
+  
+          setTimeout(function() {
+            msjCorrecto("Has Editado el email !",3)
+          },1000)
+          setTimeout(function() {  
+           LimpiarMsj(email,1)
+          LimpiarMsj(Passwor,2)
+          LimpiarMsj(BotonAgregar,3)
+         email.value="";
+         Passwor.value="" 
+          BotonAgregar.disabled = false; 
+          },3000)
+          return d // retorna email y clave actualizado que se guarda en Nuevadata
+        }
+        else{
+          return d // retorna objeto que no se modifica y se guarda en Nuevadata
+        }
+      }) 
+      data=[...Nuevadata]
+      console.log("🚀 ~ file: app.js ~ line 196 ~ EditarDatos ~ Nuevadata", Nuevadata)
+      InyectarHtml(data)
+    }else{
+      msjError("El correo ya existe",1)
+  
+    }
 
-  if (e.target.classList.contains("EditarItems") && email.value=="" & Passwor.value=="") {// se evalua q tenga la clase EditarItems y que los campos email y password esten vacios
-    BotonAgregar.disabled = true; // se desactiva el boton agregar
-
-    data.forEach((d) => {// recorro array data
-      if (d.id === IdElemento) {// si algun id en el array data es igual al IdElemento que recibi
-        // lleno los campos con los datos que quiero editar
-        email.value=d.email
-        Passwor.value=d.Clave
-        //console.log("aqui estoy")
-        msjError("Modifica el correo",1)// aggrego msj debajo de email
-        msjError("Modifica la clave",2)//aggrego msj debajo de passowrd
-        
-      }
-    }); 
   }
-// nota la primera vez al hacer click en editar entra en el primer if
- //luego del que el usuario edita los q tiene en el campo ya no entrara
- // en el primer if sino que buscara el siguiente
 
-  const ExisteEmailenData = data.some((data) => data.email === email.value); // en el primer click en editar aqui dara valor true luego de q edita el campo sera false
-  console.log(ExisteEmailenData)
 
-  if(e.target.classList.contains("EditarItems") && regxEmail.test(email.value) && regexp_password.test(Passwor.value) && ExisteEmailenData===false){// se valua que el email y clave cumple la expresion regular y ExisteEmailenData sea false es decir ese email no esta creado en data
-    
-   const Nuevadata=data.map((d)=>{// mapeo data
-      tablaa.innerHTML="" 
-      if(d.id == IdElemento ){// evaluo si algun id en data es igual al IdElemento que recibi
-      //si alguno es igual lo modifica
-        d.email=email.value
-        d.Clave=Passwor.value
-
-        setTimeout(function() {
-          msjCorrecto("Has Editado el email !",3)
-        },1000)
-        setTimeout(function() {  
-         LimpiarMsj(email,1)
-        LimpiarMsj(Passwor,2)
-        LimpiarMsj(BotonAgregar,3)
-       email.value="";
-       Passwor.value="" 
-        BotonAgregar.disabled = false; 
-        },3000)
-        return d // retorna email y clave actualizado que se guarda en Nuevadata
-      }
-      else{
-        return d // retorna objeto que no se modifica y se guarda en Nuevadata
-      }
-    }) 
-    data=[...Nuevadata]
-    console.log("🚀 ~ file: app.js ~ line 196 ~ EditarDatos ~ Nuevadata", Nuevadata)
-    InyectarHtml(data)
-  }else{
-    msjError("El correo ya existe",1)
-
-  }
+  
 
 }
  
