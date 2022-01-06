@@ -63,11 +63,14 @@ ValidarGeneral(e,"form-control2",regexp_password,"la contraseña es correcta","l
 }
 
 function LimpiarMsj(inputs,n){
+
 // para limpiar los mensajes debajo de los campos el impust puede ser email,password, y botonagregar
 // n  es el numero para identificar la clase de la etiqueta <p></p> donde se eliminara msj
   inputs.classList.remove("correcto");
+  inputs.classList.remove("error");
   const Pmsj=document.querySelector(`.msj${n}`);
   Pmsj.classList.remove("pmsjBien");
+  Pmsj.classList.remove("pmsjError");
   Pmsj.textContent=""
 }
 
@@ -78,11 +81,6 @@ function msjError(msj,n){
     Pmsj.classList.remove("pmsjBien");
     Pmsj.classList.add("pmsjError");
     Pmsj.textContent=msj
-
-    setTimeout(function() {
-      Pmsj.remove();
-  
-    },3000)
     
   
 }
@@ -93,36 +91,38 @@ function msjCorrecto(msj,n){
     Pmsj.classList.add("pmsjBien");
     Pmsj.textContent=msj
     
-setTimeout(function() {
-  Pmsj.remove();
-
-
-},3000)
-
-
-
 }
 
-function ValidarGeneral(ev,clase,reXg,messageBien,messageError,n){
-// ev es el evento target que recibe de validar ValidarCampos
-// clase es la clase del imput sea email, password
-// reXg xpresion regular
-// messageBien mensaje a mostrar cuano los datos se ingresan correctamente
-// messageError mensaje a mostrar cuano los datos se ingresan mal
-// n es el numero que identifica cada etiqueta <p class="msj1"></p> y su clase
+function ValidarGeneral(ev, clase, reXg, messageBien, messageError, n) {
+  // ev es el evento target que recibe de validar ValidarCampos
+  // clase es la clase del imput sea email, password
+  // reXg xpresion regular
+  // messageBien mensaje a mostrar cuano los datos se ingresan correctamente
+  // messageError mensaje a mostrar cuano los datos se ingresan mal
+  // n es el numero que identifica cada etiqueta <p class="msj1"></p> y su clase
 
-    if (ev.target.classList.contains(clase)) {
-        if (reXg.test(ev.target.value)) {
-            ev.target.classList.remove("error");
-            ev.target.classList.add("correcto");
-          msjCorrecto(messageBien,n)
-        } else {
-            ev.target.classList.remove("correcto");
-            ev.target.classList.add("error");
-          msjError(messageError,n)
-        }
-      }
-
+  if (ev.target.classList.contains(clase)) {
+    if (reXg.test(ev.target.value)) {
+      console.log("estoy en validar general True");
+      ev.target.classList.remove("error");
+      ev.target.classList.add("correcto");
+      msjCorrecto(messageBien, n);
+      setTimeout(function() {
+        LimpiarMsj(email,1)
+        LimpiarMsj(Passwor,2)
+      },6000)
+    } else {
+      console.log("estoy en validar general false");
+      ev.target.classList.remove("correcto");
+      ev.target.classList.add("error");
+        msjError(messageError, n);
+        setTimeout(function() {
+          LimpiarMsj(email,1)
+          LimpiarMsj(Passwor,2)
+        },6000)
+     
+    }
+  }
 }
 
 function SincronizarData(){
@@ -155,14 +155,20 @@ if(regxEmail.test(email.value) && regexp_password.test(Passwor.value) && ExisteE
 setTimeout(function() {// luego de un segundo agregar msj
   msjCorrecto("Has agregado tu informacion",3)
 },1000)
-//setTimeout(function() {// eliminar el msj
-  //LimpiarMsj(BotonAgregar,3)
-//},4000)
+setTimeout(function() {// eliminar el msj
+  LimpiarMsj(BotonAgregar,3)
+},4000)
   
 InyectarHtml(data)  // inyectar data en hmtl llamando a funcion
 SincronizarData()
 }else if(ExisteEmailenData){// si existe el email mostrar msj error
-  msjError("El email ya existe",3)
+  setTimeout(function() {
+    msjError("El email ya existe",3)
+  },1000)
+  setTimeout(function() {
+    LimpiarMsj(BotonAgregar,3)
+  },3000)
+  
 }
 else if(ExistePassowrdenData){
   msjError("La contraseña ya existe",3)
@@ -172,11 +178,12 @@ else{// si los campos estan vacios  o no cumple la expresion regular
     msjError("Debes rellenar correctamente los datos",3)
 
 }
-LimpiarMsj(email,1) //limpiar msj
+
 email.value="";// limpiar campos
 Passwor.value=""//limpiar campos
 
 LimpiarMsj(Passwor,2) //limpiar msj
+LimpiarMsj(email,1) //limpiar msj
 
 }
 
@@ -191,9 +198,9 @@ function EliminarDatos(e){// eliminar datos
 
     InyectarHtml(data);// se vuelve a inyectar html
     msjCorrecto("Has Borrado un Email",3)
-    //setTimeout(function() {// eliminar el msj
-      //LimpiarMsj(BotonAgregar,3)
-    //},3000)
+    setTimeout(function() {// eliminar el msj
+      LimpiarMsj(BotonAgregar,3)
+    },3000)
     SincronizarData()
   }
   
@@ -220,8 +227,8 @@ function EditarDatos(e) {// edicion
           email.value=d.email
           Passwor.value=d.Clave
           //console.log("aqui estoy")
-          msjError("Modifica el correo",1)// aggrego msj debajo de email
-          msjError("Modifica la clave",2)//aggrego msj debajo de passowrd
+          msjError("Ahora Modifica el correo",1)// aggrego msj debajo de email
+          msjError("ahora Modifica la clave",2)//aggrego msj debajo de passowrd
           
         }
       }); 
@@ -246,9 +253,9 @@ function EditarDatos(e) {// edicion
             msjCorrecto("Has Editado el email !",3)
           },1000)
           setTimeout(function() {  
-           //LimpiarMsj(email,1)
-          //LimpiarMsj(Passwor,2)
-          //LimpiarMsj(BotonAgregar,3)
+           LimpiarMsj(email,1)
+          LimpiarMsj(Passwor,2)
+        LimpiarMsj(BotonAgregar,3)
          email.value="";
          Passwor.value="" 
           BotonAgregar.disabled = false; 
@@ -261,15 +268,15 @@ function EditarDatos(e) {// edicion
       }) 
       data=[...Nuevadata]
       console.log("🚀 ~ file: app.js ~ line 196 ~ EditarDatos ~ Nuevadata", Nuevadata)
-      InyectarHtml(data)
-      SincronizarData()
+     
     }else{
       msjError("El correo ya existe",1)
   
     }
 
   }
-
+  InyectarHtml(data)
+  SincronizarData()
 
   
 
